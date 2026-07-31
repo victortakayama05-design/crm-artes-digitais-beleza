@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#2f2420">
+  <meta name="description" content="Painel de operação, CRM, materiais, scripts e rotina comercial de Victor Takayama | Conteúdo Digital.">
+  <title>Victor Ops — Conteúdo Digital</title>
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="assets/icon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="assets/styles.css">
+</head>
+<body>
+  <div id="app" class="app-shell">
+    <aside class="sidebar" id="sidebar" aria-label="Navegação principal">
+      <div class="brand">
+        <div class="brand-mark">VT</div>
+        <div>
+          <strong>Victor Ops</strong>
+          <span>Conteúdo Digital</span>
+        </div>
+      </div>
+
+      <nav class="nav-list">
+        <button class="nav-item active" data-page="dashboard"><span class="nav-icon">⌂</span><span>Painel</span></button>
+        <button class="nav-item" data-page="crm"><span class="nav-icon">◎</span><span>CRM</span><span class="nav-badge" id="navLeadCount">0</span></button>
+        <button class="nav-item" data-page="pipeline"><span class="nav-icon">▦</span><span>Pipeline</span></button>
+        <button class="nav-item" data-page="routine"><span class="nav-icon">✓</span><span>Rotina</span></button>
+        <button class="nav-item" data-page="scripts"><span class="nav-icon">✎</span><span>Scripts</span></button>
+        <button class="nav-item" data-page="materials"><span class="nav-icon">◇</span><span>Materiais</span></button>
+        <button class="nav-item" data-page="settings"><span class="nav-icon">⚙</span><span>Configurações</span></button>
+      </nav>
+
+      <div class="sidebar-foot">
+        <div class="storage-note">
+          <span class="status-dot"></span>
+          <div><strong>Dados locais</strong><small>Salvos neste navegador</small></div>
+        </div>
+        <button class="ghost-btn full" id="quickBackupBtn">Baixar backup</button>
+      </div>
+    </aside>
+
+    <div class="main-shell">
+      <header class="topbar">
+        <div class="topbar-left">
+          <button class="icon-btn mobile-only" id="menuBtn" aria-label="Abrir menu">☰</button>
+          <div>
+            <h1 id="pageTitle">Painel</h1>
+            <p id="pageSubtitle">Visão geral da operação comercial.</p>
+          </div>
+        </div>
+        <div class="topbar-actions">
+          <div class="today-chip" id="todayChip"></div>
+          <button class="secondary-btn" id="globalImportBtn">Importar planilha</button>
+          <button class="primary-btn" id="globalAddBtn">+ Novo lead</button>
+        </div>
+      </header>
+
+      <main id="mainContent" class="main-content" tabindex="-1"></main>
+    </div>
+  </div>
+
+  <div class="modal-backdrop hidden" id="modalBackdrop"></div>
+  <section class="modal hidden" id="leadModal" role="dialog" aria-modal="true" aria-labelledby="leadModalTitle">
+    <div class="modal-head">
+      <div><span class="eyebrow">CRM</span><h2 id="leadModalTitle">Novo lead</h2></div>
+      <button class="icon-btn" data-close-modal aria-label="Fechar">×</button>
+    </div>
+    <form id="leadForm" class="form-grid"></form>
+  </section>
+
+  <section class="modal compact hidden" id="importModal" role="dialog" aria-modal="true" aria-labelledby="importModalTitle">
+    <div class="modal-head">
+      <div><span class="eyebrow">Importação automática</span><h2 id="importModalTitle">Importar planilha</h2></div>
+      <button class="icon-btn" data-close-modal aria-label="Fechar">×</button>
+    </div>
+    <div class="import-zone" id="importZone">
+      <input type="file" id="spreadsheetInput" accept=".xlsx,.csv,.json" hidden>
+      <div class="upload-icon">⇧</div>
+      <strong>Arraste um arquivo ou clique para selecionar</strong>
+      <span>XLSX, CSV ou backup JSON</span>
+      <button class="secondary-btn" type="button" id="selectSpreadsheetBtn">Selecionar arquivo</button>
+    </div>
+    <div class="import-help">
+      <strong>Preenchimento automático</strong>
+      <p>O painel identifica a linha de cabeçalho, reconhece as colunas, evita duplicidades por Instagram/URL e atualiza os registros existentes.</p>
+    </div>
+    <div id="importResult" class="import-result hidden"></div>
+  </section>
+
+
+
+  <section class="modal compact hidden" id="scriptModal" role="dialog" aria-modal="true" aria-labelledby="scriptModalTitle">
+    <div class="modal-head">
+      <div><span class="eyebrow">Biblioteca de conversas</span><h2 id="scriptModalTitle">Novo script</h2></div>
+      <button class="icon-btn" data-close-modal aria-label="Fechar">×</button>
+    </div>
+    <form id="scriptForm" class="form-grid script-form"></form>
+  </section>
+
+  <section class="modal compact hidden" id="scriptImportModal" role="dialog" aria-modal="true" aria-labelledby="scriptImportModalTitle">
+    <div class="modal-head">
+      <div><span class="eyebrow">Biblioteca de conversas</span><h2 id="scriptImportModalTitle">Importar scripts</h2></div>
+      <button class="icon-btn" data-close-modal aria-label="Fechar">×</button>
+    </div>
+    <div class="import-zone" id="scriptImportZone">
+      <input type="file" id="scriptFileInput" accept=".xlsx,.csv,.json,.txt" hidden>
+      <div class="upload-icon">⇧</div>
+      <strong>Arraste um arquivo ou clique para selecionar</strong>
+      <span>XLSX, CSV, JSON ou TXT</span>
+      <button class="secondary-btn" type="button" id="selectScriptFileBtn">Selecionar arquivo</button>
+    </div>
+    <div class="import-help">
+      <strong>Colunas reconhecidas</strong>
+      <p><b>Título</b>, <b>Texto</b>, Categoria, Etapa, Canal e Tags. Em TXT, separe os scripts com uma linha contendo <code>---</code>; a primeira linha de cada bloco será usada como título.</p>
+      <button class="small-btn mt-12" type="button" id="downloadScriptTemplateBtn">Baixar modelo CSV</button>
+    </div>
+    <div id="scriptImportResult" class="import-result hidden"></div>
+  </section>
+
+  <section class="modal flow-modal hidden" id="instagramFlowModal" role="dialog" aria-modal="true" aria-labelledby="instagramFlowModalTitle">
+    <div class="modal-head">
+      <div><span class="eyebrow">CRM · Instagram</span><h2 id="instagramFlowModalTitle">Sequência de scripts</h2></div>
+      <button class="icon-btn" data-close-modal aria-label="Fechar">×</button>
+    </div>
+    <div id="instagramFlowContent" class="instagram-flow-content"></div>
+  </section>
+
+  <section class="modal compact hidden" id="confirmModal" role="dialog" aria-modal="true" aria-labelledby="confirmModalTitle">
+    <div class="modal-head">
+      <div><span class="eyebrow">Confirmação</span><h2 id="confirmModalTitle">Confirmar ação</h2></div>
+      <button class="icon-btn" data-close-modal aria-label="Fechar">×</button>
+    </div>
+    <p id="confirmModalText" class="confirm-text"></p>
+    <div class="modal-actions">
+      <button class="secondary-btn" data-close-modal>Cancelar</button>
+      <button class="danger-btn" id="confirmActionBtn">Confirmar</button>
+    </div>
+  </section>
+
+  <div id="toastRegion" class="toast-region" aria-live="polite"></div>
+
+  <script src="assets/data.js"></script>
+  <script src="assets/xlsx-lite.js"></script>
+  <script src="assets/app.js"></script>
+</body>
+</html>

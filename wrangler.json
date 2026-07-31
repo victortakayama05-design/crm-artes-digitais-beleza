@@ -1,0 +1,9 @@
+{
+  "name": "crm-artes-digitais-beleza",
+  "compatibility_date": "2026-07-31",
+  "assets": {
+    "directory": "./dist",
+    "html_handling": "none",
+    "not_found_handling": "single-page-application"
+  }
+}

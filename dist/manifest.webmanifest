@@ -1,0 +1,11 @@
+{
+  "name": "Victor Ops — Conteúdo Digital",
+  "short_name": "Victor Ops",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#f7f1ea",
+  "theme_color": "#2f2420",
+  "icons": [
+    {"src": "assets/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable"}
+  ]
+}
